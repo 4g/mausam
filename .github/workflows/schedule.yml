@@ -1,0 +1,33 @@
+name: Download Image Hourly
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # every hour
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run script
+        run: python download.py
+
+      - name: Commit images
+        run: |
+          git config user.name "bot"
+          git config user.email "bot@github.com"
+          git add images/*
+          git commit -m "Add new image" || echo "No changes"
+          git push
